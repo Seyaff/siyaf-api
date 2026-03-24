@@ -4,11 +4,14 @@ import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 import mongoSanitize from "express-mongo-sanitize";
+import dns from "dns"
 
 import { Env } from "./config/app.config.js";
 import { connectDatabase } from "./config/database.config.js";
-import { notFound, errorHandler } from "./middlewares/error.middleware.js";
+import { notFound, errorHandler } from "./middlewares/errorHandler.middleware.js";
 import contactRoutes from "./routes/contact.route.js";
+
+dns.setServers(["1.1.1.1", "8.8.8.8"])
 
 const app = express();
 const BASE_PATH = `${Env.BASE_PATH}`;
