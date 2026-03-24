@@ -1,13 +1,9 @@
 import { Env } from "../config/app.config.js";
 
 export const errorHandler = (err, req, res, next) => {
-  if (err.name === "ZodError") {
-    statusCode = 400;
-    message = err.errors.map((e) => e.message).join(" | ");
-    err.stack = null;
-  }
   let statusCode = res.statusCode === 200 ? 500 : res.statusCode;
   let message = err.message || "Internal Server Error";
+
 
   if (err.name === "CastError" && err.kind === "ObjectId") {
     statusCode = 404;
@@ -16,23 +12,28 @@ export const errorHandler = (err, req, res, next) => {
 
   if (err.code === 11000) {
     statusCode = 400;
-    message = "Duplicate field value entered. This record already exists.";
-    err.stack = null;
+    message = "Transmission rejected. This record already exists in the vault.";
   }
 
-  if (err.name === "ValidationError") {
+ 
+  if (err.name === "ZodError") {
     statusCode = 400;
-    message = Object.values(err.errors)
-      .map((val) => val.message)
-      .join(", ");
+    message = err.errors.map((e) => e.message).join(" | ");
   }
 
-  console.error(`🚨 [ERROR] ${message}`);
+
+  if (err.message.includes("IncomingMessage")) {
+    console.error("🚨 [CRITICAL] Middleware Conflict Detected. Bypassing.");
+    return next();
+  }
+
+  console.error(`🚨 [SYSTEM ERROR] ${message}`);
 
   res.status(statusCode).json({
     success: false,
     error: {
       message: message,
+   
       stack: Env.NODE_ENV === "production" ? "🥞" : err.stack,
     },
   });
