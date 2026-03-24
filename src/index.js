@@ -33,14 +33,6 @@ app.use(
 app.use(express.json({ limit: "10kb" }));
 app.use(express.urlencoded({ extended: true, limit: "10kb" }));
 
-app.use(
-  mongoSanitize({
-    onSanitize: ({ key }) => {
-      if (key === "query" || key === "params") return;
-    },
-  })
-);
-
 
 app.use(`${BASE_PATH}/contact`, contactRoutes);
 
