@@ -4,7 +4,6 @@ export const errorHandler = (err, req, res, next) => {
   let statusCode = res.statusCode === 200 ? 500 : res.statusCode;
   let message = err.message || "Internal Server Error";
 
-
   if (err.name === "CastError" && err.kind === "ObjectId") {
     statusCode = 404;
     message = "Resource not found. Invalid Identifier.";
@@ -15,16 +14,10 @@ export const errorHandler = (err, req, res, next) => {
     message = "Transmission rejected. This record already exists in the vault.";
   }
 
- 
+  // Zod is our real armor against NoSQL injection
   if (err.name === "ZodError") {
     statusCode = 400;
     message = err.errors.map((e) => e.message).join(" | ");
-  }
-
-
-  if (err.message.includes("IncomingMessage")) {
-    console.error("🚨 [CRITICAL] Middleware Conflict Detected. Bypassing.");
-    return next();
   }
 
   console.error(`🚨 [SYSTEM ERROR] ${message}`);
@@ -33,7 +26,6 @@ export const errorHandler = (err, req, res, next) => {
     success: false,
     error: {
       message: message,
-   
       stack: Env.NODE_ENV === "production" ? "🥞" : err.stack,
     },
   });

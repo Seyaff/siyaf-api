@@ -3,7 +3,7 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
-import mongoSanitize from "express-mongo-sanitize";
+
 import dns from "dns"
 
 import { Env } from "./config/app.config.js";
