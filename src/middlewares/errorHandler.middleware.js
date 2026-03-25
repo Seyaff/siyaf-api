@@ -14,10 +14,16 @@ export const errorHandler = (err, req, res, next) => {
     message = "Transmission rejected. This record already exists in the vault.";
   }
 
-  // Zod is our real armor against NoSQL injection
-  if (err.name === "ZodError") {
+  // 🚀 BULLETPROOF ZOD HANDLER: Added optional chaining (?.) and an Array check
+  if (err.name === "ZodError" && Array.isArray(err.errors)) {
     statusCode = 400;
     message = err.errors.map((e) => e.message).join(" | ");
+  }
+
+  // Catch Cloudflare/Discord Axios errors gracefully
+  if (err.response && err.response.status === 403) {
+    statusCode = 502;
+    message = "External transmission blocked by security firewall (Cloudflare).";
   }
 
   console.error(`🚨 [SYSTEM ERROR] ${message}`);
